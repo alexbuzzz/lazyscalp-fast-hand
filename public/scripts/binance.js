@@ -102,14 +102,14 @@ const cancelOrd = async () => {
   let errMsg = ''
   let errorsCount = 0
 
-  for (const element of orders) {
+  await orders.forEach(async (element) => {
     const res = await binance.futuresCancelAll(element)
 
     if (res.code !== 200) {
       errMsg += `⚠️ ${element} ${res.msg}\n`
       errorsCount++
     }
-  }
+  })
   orders = []
 
   if (errorsCount > 0) {
