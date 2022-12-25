@@ -3,7 +3,7 @@ require('dotenv').config()
 const cron = require('node-cron')
 
 const JSONdb = require('simple-json-db')
-const db = new JSONdb('db.json')
+const db = new JSONdb('database/db.json')
 
 const {
   startKeyboard,
