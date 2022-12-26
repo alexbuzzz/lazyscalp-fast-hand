@@ -40,8 +40,11 @@ cron.schedule('55 23,7,15 * * *', async () => {
           '❗️ FUNDING IN 5 MINUTES'
         )
         setTimeout(() => {
-          bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id)
-        }, 1000 * 10)
+          bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
+            (response) => response,
+            ({ response }) => response.ok
+          )
+        }, 1000 * 60 * 5)
       }
     }
   }
