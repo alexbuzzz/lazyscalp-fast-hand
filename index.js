@@ -24,13 +24,13 @@ const {
   getFundingRate,
 } = require('./public/scripts/binance')
 
-const { helpText } = require('./public/scripts/textTemplates')
+const { helpText, fundingText } = require('./public/scripts/textTemplates')
 
 const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-// FUNDING TIMER
+// FUNDING TIMER 5M
 cron.schedule('55 23,7,15 * * *', async () => {
   if ((await getFundingRate()).counter > 0) {
     if (db.get('alerts')) {
@@ -44,7 +44,27 @@ cron.schedule('55 23,7,15 * * *', async () => {
             (response) => response,
             ({ response }) => response.ok
           )
-        }, 1000 * 60 * 5)
+        }, 1000 * 269)
+      }
+    }
+  }
+})
+
+// FUNDING TIMER 30S
+cron.schedule('30 59 23,7,15 * * *', async () => {
+  if ((await getFundingRate()).counter > 0) {
+    if (db.get('alerts')) {
+      if (db.get('alerts') == 'on') {
+        const msg = await bot.telegram.sendMessage(
+          process.env.USER_ID,
+          '❗️ FUNDING IN 30 SEC'
+        )
+        setTimeout(() => {
+          bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
+            (response) => response,
+            ({ response }) => response.ok
+          )
+        }, 1000 * 30)
       }
     }
   }
@@ -181,10 +201,7 @@ bot.action('switch_funding_alerts', async (ctx) => {
     ctx.editMessageText('🔕 You turned OFF funding alerts', backKeyboard)
   } else {
     db.set('alerts', 'on')
-    ctx.editMessageText(
-      '🔔 You turned ON funding alerts.\n\nIf the funding of any futures is at least 0.5%, bot will notify you 5 minutes before funding.',
-      backKeyboard
-    )
+    ctx.editMessageText(fundingText, backKeyboard)
   }
 })
 
