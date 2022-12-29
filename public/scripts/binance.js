@@ -189,6 +189,7 @@ const getBalances = async () => {
 // Get fundings
 const getFundingRate = async () => {
   let msg = ''
+  let alertMsg = ''
   let tickers = ''
   let counter = 0
   const res = await binance.futuresMarkPrice()
@@ -205,18 +206,19 @@ const getFundingRate = async () => {
     const rate = (element.lastFundingRate * 100).toFixed(2)
 
     if (Math.abs(rate) > 0.5) {
-      tickers += `${element.symbol} ${rate}\n`
+      tickers += `<code>${element.symbol}</code> ${rate}\n`
       counter++
     }
   })
 
   if (counter > 0) {
     msg += tickers
+    alertMsg += tickers
   } else {
     msg += 'Nothing to trade yet 😢'
   }
 
-  return { msg, counter }
+  return { msg, counter, tickers }
 }
 
 module.exports = {

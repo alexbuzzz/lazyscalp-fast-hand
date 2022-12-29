@@ -32,12 +32,14 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // FUNDING TIMER 5M
 cron.schedule('55 23,7,15 * * *', async () => {
-  if ((await getFundingRate()).counter > 0) {
+  const fundingRate = await getFundingRate()
+  if (fundingRate.counter > 0) {
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {
         const msg = await bot.telegram.sendMessage(
           process.env.USER_ID,
-          '❗️ FUNDING IN 5 MINUTES'
+          `❗️ FUNDING 5 MINUTES\n\n${fundingRate.tickers}`,
+          { parse_mode: 'HTML' }
         )
         setTimeout(() => {
           bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
@@ -52,12 +54,14 @@ cron.schedule('55 23,7,15 * * *', async () => {
 
 // FUNDING TIMER 30S
 cron.schedule('30 59 23,7,15 * * *', async () => {
-  if ((await getFundingRate()).counter > 0) {
+  const fundingRate = await getFundingRate()
+  if (fundingRate.counter > 0) {
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {
         const msg = await bot.telegram.sendMessage(
           process.env.USER_ID,
-          '❗️ FUNDING IN 30 SEC'
+          `❗️ FUNDING IN 30 SEC\n\n${fundingRate.tickers}`,
+          { parse_mode: 'HTML' }
         )
         setTimeout(() => {
           bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
