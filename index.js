@@ -3,7 +3,6 @@ require('dotenv').config()
 const cron = require('node-cron')
 
 const JSONdb = require('simple-json-db')
-const db = new JSONdb('database/db.json')
 
 const {
   startKeyboard,
@@ -22,6 +21,8 @@ const {
   setLeverage,
   getBalances,
   getFundingRate,
+  getFundingBalances,
+  getPrevFundingBalances,
 } = require('./public/scripts/binance')
 
 const { helpText, fundingText } = require('./public/scripts/textTemplates')
@@ -32,7 +33,10 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // FUNDING TIMER 5M
 cron.schedule('55 23,7,15 * * *', async () => {
+  const db = new JSONdb('database/db.json')
+
   const fundingRate = await getFundingRate()
+
   if (fundingRate.counter > 0) {
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {
@@ -52,10 +56,16 @@ cron.schedule('55 23,7,15 * * *', async () => {
   }
 })
 
-// FUNDING TIMER 30S
+// FUNDING TIMER 30 SEC
 cron.schedule('30 59 23,7,15 * * *', async () => {
+  const db = new JSONdb('database/db.json')
+
   const fundingRate = await getFundingRate()
+
   if (fundingRate.counter > 0) {
+    const prevBalance = await getPrevFundingBalances()
+    db.set('prevBalance', prevBalance)
+
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {
         const msg = await bot.telegram.sendMessage(
@@ -200,13 +210,21 @@ bot.action('back', (ctx) => {
 
 // SWITCH FUNDING ALERTS
 bot.action('switch_funding_alerts', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+
   if (db.get('alerts') == 'on') {
     db.set('alerts', 'off')
-    ctx.editMessageText('🔕 You turned OFF funding alerts', backKeyboard)
+    ctx.editMessageText('❌ You turned OFF funding alerts', backKeyboard)
   } else {
     db.set('alerts', 'on')
     ctx.editMessageText(fundingText, backKeyboard)
   }
+})
+
+// FUNDING BALANCES
+bot.action('fundingBalances', async (ctx) => {
+  const fundingBalances = await getFundingBalances()
+  ctx.editMessageText(fundingBalances, backKeyboard)
 })
 
 bot.launch()

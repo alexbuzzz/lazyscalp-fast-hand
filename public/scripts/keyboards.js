@@ -62,8 +62,11 @@ const chooseLeverage = {
 const fundingMenu = {
   parse_mode: 'HTML',
   ...Markup.inlineKeyboard([
-    Markup.button.callback('⬅️ BACK', 'back'),
-    Markup.button.callback('ALERTS', 'switch_funding_alerts'),
+    [Markup.button.callback('💵 CHECK BALANCES', 'fundingBalances')],
+    [
+      Markup.button.callback('⬅️ BACK', 'back'),
+      Markup.button.callback('🔔 ALERTS', 'switch_funding_alerts'),
+    ],
   ]),
 }
 

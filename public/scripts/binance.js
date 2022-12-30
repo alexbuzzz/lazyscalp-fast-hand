@@ -1,5 +1,7 @@
 require('dotenv').config()
 
+const JSONdb = require('simple-json-db')
+
 const Binance = require('node-binance-api')
 
 const binance = new Binance().options({
@@ -221,6 +223,54 @@ const getFundingRate = async () => {
   return { msg, counter, tickers }
 }
 
+// Get funding balances
+const getFundingBalances = async () => {
+  let msg = 'Before funding:\n'
+
+  const db = new JSONdb('database/db.json')
+  const prevBalance = await db.get('prevBalance')
+
+  if (!prevBalance) {
+    msg += 'Not available yet\n'
+  } else {
+    msg += prevBalance
+  }
+
+  const fut = await binance.futuresBalance()
+
+  if (fut.code) {
+    msg += `⚠️ ${fut.msg}\n`
+  } else {
+    msg += '\nNow:\n'
+    await fut.forEach((element) => {
+      if (element.balance > 0) {
+        msg += `${element.asset} ${Number(element.balance).toFixed(2)}$\n`
+      }
+    })
+  }
+
+  return msg
+}
+
+// Get previous funding balances
+const getPrevFundingBalances = async () => {
+  let msg = ''
+
+  const fut = await binance.futuresBalance()
+
+  if (fut.code) {
+    msg += `⚠️ ${fut.msg}\n`
+  } else {
+    await fut.forEach((element) => {
+      if (element.balance > 0) {
+        msg += `${element.asset} ${Number(element.balance).toFixed(2)}$\n`
+      }
+    })
+  }
+
+  return msg
+}
+
 module.exports = {
   getPos,
   closePos,
@@ -229,4 +279,6 @@ module.exports = {
   setLeverage,
   getBalances,
   getFundingRate,
+  getFundingBalances,
+  getPrevFundingBalances,
 }
