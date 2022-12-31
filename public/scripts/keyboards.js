@@ -62,11 +62,28 @@ const chooseLeverage = {
 const fundingMenu = {
   parse_mode: 'HTML',
   ...Markup.inlineKeyboard([
+    [Markup.button.callback('🎚 SET MIN RATE', 'fundingRateFilterMenu')],
+    [Markup.button.callback('🔔 ALERTS ON/OFF', 'switch_funding_alerts')],
     [Markup.button.callback('💵 CHECK BALANCES', 'fundingBalances')],
+    [Markup.button.callback('⬅️ BACK', 'back')],
+  ]),
+}
+
+// Funding rate filter menu
+const fundingRateFilterMenu = {
+  parse_mode: 'HTML',
+  ...Markup.inlineKeyboard([
     [
-      Markup.button.callback('⬅️ BACK', 'back'),
-      Markup.button.callback('🔔 ALERTS', 'switch_funding_alerts'),
+      Markup.button.callback('0.2%', 'rate 0.2%'),
+      Markup.button.callback('0.5%', 'rate 0.5%'),
+      Markup.button.callback('0.8%', 'rate 0.8%'),
     ],
+    [
+      Markup.button.callback('1%', 'rate 1%'),
+      Markup.button.callback('1.5%', 'rate 1.5%'),
+      Markup.button.callback('2%', 'rate 2%'),
+    ],
+    [Markup.button.callback('⬅️ BACK', 'fundings')],
   ]),
 }
 
@@ -76,11 +93,26 @@ const backKeyboard = {
   ...Markup.inlineKeyboard([Markup.button.callback('⬅️ BACK', 'back')]),
 }
 
+// Back to funding
+const backToFundingKeyboard = {
+  parse_mode: 'HTML',
+  ...Markup.inlineKeyboard([Markup.button.callback('⬅️ BACK', 'fundings')]),
+}
+
+// Back to leverage
+const backToLeverageKeyboard = {
+  parse_mode: 'HTML',
+  ...Markup.inlineKeyboard([Markup.button.callback('⬅️ BACK', 'leverage')]),
+}
+
 module.exports = {
   startKeyboard,
   removeOrders,
   closePositions,
   backKeyboard,
   fundingMenu,
+  fundingRateFilterMenu,
   chooseLeverage,
+  backToFundingKeyboard,
+  backToLeverageKeyboard,
 }

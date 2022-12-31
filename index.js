@@ -11,6 +11,9 @@ const {
   backKeyboard,
   chooseLeverage,
   fundingMenu,
+  fundingRateFilterMenu,
+  backToFundingKeyboard,
+  backToLeverageKeyboard,
 } = require('./public/scripts/keyboards')
 
 const {
@@ -50,7 +53,7 @@ cron.schedule('55 23,7,15 * * *', async () => {
             (response) => response,
             ({ response }) => response.ok
           )
-        }, 1000 * 269)
+        }, 1000 * 28)
       }
     }
   }
@@ -78,7 +81,7 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
             (response) => response,
             ({ response }) => response.ok
           )
-        }, 1000 * 30)
+        }, 1000 * 28)
       }
     }
   }
@@ -144,46 +147,46 @@ bot.action('leverage', async (ctx) => {
   )
 })
 
-// SET 1
+// SET LEVER 1
 bot.action('one', async (ctx) => {
   const res = await setLeverage(1)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET 2
+// SET LEVER 2
 bot.action('two', async (ctx) => {
   const res = await setLeverage(2)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET 5
+// SET LEVER 5
 bot.action('five', async (ctx) => {
   const res = await setLeverage(5)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET 8
+// SET LEVER 8
 bot.action('eight', async (ctx) => {
   const res = await setLeverage(8)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET 10
+// SET LEVER 10
 bot.action('ten', async (ctx) => {
   const res = await setLeverage(10)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET 20
+// SET LEVER 20
 bot.action('twenty', async (ctx) => {
   const res = await setLeverage(20)
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
-// SET MAX
+// SET LEVER MAX
 bot.action('max', async (ctx) => {
   const res = await setLeverage('max')
-  ctx.editMessageText(res, backKeyboard)
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
 // BALANCES
@@ -198,6 +201,78 @@ bot.action('fundings', async (ctx) => {
   ctx.editMessageText(fundings.msg, fundingMenu)
 })
 
+// FUNDING RATE FILTER MENU
+bot.action('fundingRateFilterMenu', async (ctx) => {
+  ctx.editMessageText(
+    'Select minimal funding rate to show in bot and alerts:',
+    fundingRateFilterMenu
+  )
+})
+
+// SET MIN RATE 0.2%
+bot.action('rate 0.2%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '0.2')
+  ctx.editMessageText('✅ 0.2% successfully set', backToFundingKeyboard)
+})
+
+// SET MIN RATE 0.5%
+bot.action('rate 0.5%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '0.5')
+  ctx.editMessageText('✅ 0.5% successfully set', backToFundingKeyboard)
+})
+
+// SET MIN RATE 0.8%
+bot.action('rate 0.8%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '0.8')
+  ctx.editMessageText('✅ 0.8% successfully set', backToFundingKeyboard)
+})
+
+// SET MIN RATE 1%
+bot.action('rate 1%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '1')
+  ctx.editMessageText('✅ 1% successfully set', backToFundingKeyboard)
+})
+
+// SET MIN RATE 1.5%
+bot.action('rate 1.5%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '1.5')
+  ctx.editMessageText('✅ 1.5% successfully set', backToFundingKeyboard)
+})
+
+// SET MIN RATE 2%
+bot.action('rate 2%', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+  db.set('fundingMinRate', '2')
+  ctx.editMessageText('✅ 2% successfully set', backToFundingKeyboard)
+})
+
+// SWITCH FUNDING ALERTS
+bot.action('switch_funding_alerts', async (ctx) => {
+  const db = new JSONdb('database/db.json')
+
+  if (db.has('alerts') && db.get('alerts') == 'off') {
+    db.set('alerts', 'on')
+    ctx.editMessageText(await fundingText(), backToFundingKeyboard)
+  } else {
+    db.set('alerts', 'off')
+    ctx.editMessageText(
+      '❌ You turned OFF funding alerts',
+      backToFundingKeyboard
+    )
+  }
+})
+
+// FUNDING BALANCES
+bot.action('fundingBalances', async (ctx) => {
+  const fundingBalances = await getFundingBalances()
+  ctx.editMessageText(fundingBalances, backToFundingKeyboard)
+})
+
 // HELP
 bot.action('help', async (ctx) => {
   ctx.editMessageText(helpText, backKeyboard)
@@ -206,25 +281,6 @@ bot.action('help', async (ctx) => {
 // BACK
 bot.action('back', (ctx) => {
   ctx.editMessageText('Press button to do something:', startKeyboard)
-})
-
-// SWITCH FUNDING ALERTS
-bot.action('switch_funding_alerts', async (ctx) => {
-  const db = new JSONdb('database/db.json')
-
-  if (db.get('alerts') == 'on') {
-    db.set('alerts', 'off')
-    ctx.editMessageText('❌ You turned OFF funding alerts', backKeyboard)
-  } else {
-    db.set('alerts', 'on')
-    ctx.editMessageText(fundingText, backKeyboard)
-  }
-})
-
-// FUNDING BALANCES
-bot.action('fundingBalances', async (ctx) => {
-  const fundingBalances = await getFundingBalances()
-  ctx.editMessageText(fundingBalances, backKeyboard)
 })
 
 bot.launch()
