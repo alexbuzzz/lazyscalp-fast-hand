@@ -53,7 +53,7 @@ cron.schedule('55 23,7,15 * * *', async () => {
             (response) => response,
             ({ response }) => response.ok
           )
-        }, 1000 * 28)
+        }, 1000 * 268)
       }
     }
   }
