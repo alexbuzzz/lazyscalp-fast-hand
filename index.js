@@ -22,6 +22,7 @@ const {
   getOrd,
   cancelOrd,
   setLeverage,
+  setMarginType,
   getBalances,
   getFundingRate,
   getFundingBalances,
@@ -142,9 +143,21 @@ bot.action('close_positions', async (ctx) => {
 // CHOOSE LEVERAGE
 bot.action('leverage', async (ctx) => {
   ctx.editMessageText(
-    'Select leverage value to set in all futures:',
+    'Select leverage or margin type to set in all futures:',
     chooseLeverage
   )
+})
+
+// SET CROSS TYPE
+bot.action('cross', async (ctx) => {
+  const res = await setMarginType('CROSSED')
+  ctx.editMessageText(res, backToLeverageKeyboard)
+})
+
+// SET ISOLATED TYPE
+bot.action('isolated', async (ctx) => {
+  const res = await setMarginType('ISOLATED')
+  ctx.editMessageText(res, backToLeverageKeyboard)
 })
 
 // SET LEVER 1

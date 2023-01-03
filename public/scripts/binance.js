@@ -101,10 +101,10 @@ const closePos = async () => {
 
 // Cancel orders
 const cancelOrd = async () => {
-  let errMsg = ''
+  let errMsg = 'Error: '
   let errorsCount = 0
 
-  await orders.forEach(async (element) => {
+  orders.forEach(async (element) => {
     const res = await binance.futuresCancelAll(element)
 
     if (res.code !== 200) {
@@ -119,6 +119,23 @@ const cancelOrd = async () => {
   } else {
     return '✅ All orders were canceled '
   }
+}
+
+// Set margin type
+const setMarginType = async (type) => {
+  futurePairs = await binance.futuresMarkPrice()
+
+  if (futurePairs.code) {
+    return `⚠️ ${futurePairs.msg}\n`
+  }
+
+  const loop = futurePairs.map(async (element) => {
+    const res = await binance.futuresMarginType(element.symbol, type)
+    return res.msg
+  })
+
+  const loopRes = await Promise.all(loop)
+  return loopRes[0].toUpperCase()
 }
 
 // Set leverage
@@ -145,11 +162,11 @@ const setLeverage = async (lever) => {
     const maxLever = element.brackets[0].initialLeverage
 
     if (lever == 'max') {
-      const res = await binance.futuresLeverage(element.symbol, maxLever)
+      binance.futuresLeverage(element.symbol, maxLever)
     } else if (maxLever < lever) {
-      const res = await binance.futuresLeverage(element.symbol, maxLever)
+      binance.futuresLeverage(element.symbol, maxLever)
     } else {
-      const res = await binance.futuresLeverage(element.symbol, lever)
+      binance.futuresLeverage(element.symbol, lever)
     }
   })
 
@@ -285,6 +302,7 @@ module.exports = {
   getOrd,
   cancelOrd,
   setLeverage,
+  setMarginType,
   getBalances,
   getFundingRate,
   getFundingBalances,

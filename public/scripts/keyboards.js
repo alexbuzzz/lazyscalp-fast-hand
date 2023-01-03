@@ -42,6 +42,10 @@ const chooseLeverage = {
   parse_mode: 'HTML',
   ...Markup.inlineKeyboard([
     [
+      Markup.button.callback('CROSS', 'cross'),
+      Markup.button.callback('ISOLATED', 'isolated'),
+    ],
+    [
       Markup.button.callback('1x', 'one'),
       Markup.button.callback('2x', 'two'),
       Markup.button.callback('5x', 'five'),
