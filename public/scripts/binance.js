@@ -196,8 +196,8 @@ const getFundingRate = async () => {
     ? db.get('fundingMinRate')
     : '0.5'
   let msg = ''
-  let tickers = ''
-  let counter = 0
+  let alertMsg = ''
+  const tickers = []
   const res = await binance.futuresMarkPrice()
   const currentTime = res[1].time
   const nextTime = res[1].nextFundingTime
@@ -211,21 +211,24 @@ const getFundingRate = async () => {
   await res.forEach((element) => {
     const rate = (element.lastFundingRate * 100).toFixed(2)
 
-    if (Math.abs(rate) > Number(fundingMinRate)) {
-      tickers += `<code>${element.symbol}</code> ${rate}\n`
-      counter++
+    if (Math.abs(rate) >= Number(fundingMinRate)) {
+      tickers.push({ ticker: element.symbol, rate: rate })
     }
   })
 
-  if (counter > 0) {
-    msg += tickers
+  if (tickers.length > 0) {
+    tickers.sort((a, b) => a.rate - b.rate)
+    tickers.forEach((element) => {
+      msg += `<code>${element.ticker}</code> ${element.rate}\n`
+      alertMsg += `<code>${element.ticker}</code> ${element.rate}\n`
+    })
   } else {
     msg += 'Nothing to trade yet 😢\n'
   }
 
   msg += `\nAlerts ${alerts.toUpperCase()}\nMin rate: ${fundingMinRate}%`
 
-  return { msg, counter, tickers }
+  return { msg, alertMsg, tickers }
 }
 
 // Get funding balances

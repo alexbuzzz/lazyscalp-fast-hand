@@ -40,12 +40,12 @@ cron.schedule('55 23,7,15 * * *', async () => {
 
   const fundingRate = await getFundingRate()
 
-  if (fundingRate.counter > 0) {
+  if (fundingRate.tickers.length > 0) {
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {
         const msg = await bot.telegram.sendMessage(
           process.env.USER_ID,
-          `❗️ FUNDING 5 MINUTES\n\n${fundingRate.tickers}`,
+          `❗️ FUNDING IN 5 MINUTES\n\n${fundingRate.alertMsg}`,
           { parse_mode: 'HTML' }
         )
         setTimeout(() => {
@@ -65,7 +65,7 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
 
   const fundingRate = await getFundingRate()
 
-  if (fundingRate.counter > 0) {
+  if (fundingRate.tickers.length > 0) {
     const prevBalance = await getPrevFundingBalances()
     db.set('prevBalance', prevBalance)
 
@@ -73,7 +73,7 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
       if (db.get('alerts') == 'on') {
         const msg = await bot.telegram.sendMessage(
           process.env.USER_ID,
-          `❗️ FUNDING IN 30 SEC\n\n${fundingRate.tickers}`,
+          `❗️ FUNDING IN 30 SEC\n\n${fundingRate.alertMsg}`,
           { parse_mode: 'HTML' }
         )
         setTimeout(() => {
