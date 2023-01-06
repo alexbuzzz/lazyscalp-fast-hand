@@ -250,28 +250,33 @@ const getFundingRate = async () => {
 
 // Get funding balances
 const getFundingBalances = async () => {
-  let msg = 'Before funding:\n'
+  let msg = ''
+  const balance = {}
 
   const db = new JSONdb('database/db.json')
   const prevBalance = await db.get('prevBalance')
-
-  if (!prevBalance) {
-    msg += 'Not available yet\n'
-  } else {
-    msg += prevBalance
-  }
 
   const fut = await binance.futuresBalance()
 
   if (fut.code) {
     msg += `⚠️ ${fut.msg}\n`
   } else {
-    msg += '\nNow:\n'
     await fut.forEach((element) => {
       if (element.balance > 0) {
-        msg += `${element.asset} ${Number(element.balance).toFixed(2)}$\n`
+        balance[element.asset] = Number(element.balance).toFixed(2)
       }
     })
+  }
+
+  if (!prevBalance) {
+    msg += 'Not available yet\n'
+  } else {
+    msg += 'FUNDING RESULT:\n\n'
+    for (const element in balance) {
+      msg += `${element} ${Number(
+        balance[element] - prevBalance[element]
+      ).toFixed(2)}$\n`
+    }
   }
 
   return msg
@@ -280,20 +285,23 @@ const getFundingBalances = async () => {
 // Get previous funding balances
 const getPrevFundingBalances = async () => {
   let msg = ''
+  const balances = {}
 
   const fut = await binance.futuresBalance()
 
   if (fut.code) {
     msg += `⚠️ ${fut.msg}\n`
   } else {
-    await fut.forEach((element) => {
+    msg += 'FUNDING RESULTS:'
+
+    fut.forEach((element) => {
       if (element.balance > 0) {
-        msg += `${element.asset} ${Number(element.balance).toFixed(2)}$\n`
+        balances[element.asset] = Number(element.balance).toFixed(2)
       }
     })
   }
 
-  return msg
+  return msg, balances
 }
 
 module.exports = {

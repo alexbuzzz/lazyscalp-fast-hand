@@ -68,7 +68,7 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
 
   if (fundingRate.tickers.length > 0) {
     const prevBalance = await getPrevFundingBalances()
-    db.set('prevBalance', prevBalance)
+    db.set('prevBalance', prevBalance.balances)
 
     if (db.get('alerts')) {
       if (db.get('alerts') == 'on') {

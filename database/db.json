@@ -1,4 +1,4 @@
 {
-    "alerts": "on",
-    "fundingMinRate": "0.2"
+  "alerts": "on",
+  "fundingMinRate": "0.2"
 }
