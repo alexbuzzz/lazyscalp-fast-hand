@@ -12,6 +12,12 @@ const binance = new Binance().options({
 let positions = {}
 let orders = []
 
+// Get all futures tickers
+const getTickers = async () => {
+  const res = await binance.futuresPrices()
+  return Object.keys(res)
+}
+
 // Get positions
 const getPos = async () => {
   const positionsData = await binance.futuresPositionRisk()
@@ -305,6 +311,7 @@ const getPrevFundingBalances = async () => {
 }
 
 module.exports = {
+  getTickers,
   getPos,
   closePos,
   getOrd,

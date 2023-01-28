@@ -17,6 +17,7 @@ const {
 } = require('./public/scripts/keyboards')
 
 const {
+  getTickers,
   getPos,
   closePos,
   getOrd,
@@ -85,6 +86,44 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
         }, 1000 * 28)
       }
     }
+  }
+})
+
+// CHECK NEW LISTED FUTURES
+const initTickersList = async () => {
+  const tickers = await getTickers()
+  const db = new JSONdb('database/db.json')
+  db.set('futTickers', tickers)
+}
+initTickersList()
+
+cron.schedule('59 * * * *', async () => {
+  initTickersList()
+})
+
+cron.schedule('1 0 * * * *', async () => {
+  const db = new JSONdb('database/db.json')
+  const tickersFromDB = await db.get('futTickers')
+  const tickers = await getTickers()
+
+  let difference = tickers.filter((x) => !tickersFromDB.includes(x))
+
+  let text = '🆕 FUTURES JUST LISTED:\n\n'
+
+  if (difference.length > 0) {
+    difference.forEach((element) => {
+      text += `<code>${element}</code>\n`
+    })
+
+    const msg = await bot.telegram.sendMessage(process.env.USER_ID, text, {
+      parse_mode: 'HTML',
+    })
+    setTimeout(() => {
+      bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
+        (response) => response,
+        ({ response }) => response.ok
+      )
+    }, 1000 * 60 * 60 * 12)
   }
 })
 
