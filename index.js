@@ -97,11 +97,11 @@ const initTickersList = async () => {
 }
 initTickersList()
 
-cron.schedule('30 * * * *', async () => {
+cron.schedule('10,40 * * * *', async () => {
   initTickersList()
 })
 
-cron.schedule('10 0 * * * *', async () => {
+cron.schedule('10 0,30 * * * *', async () => {
   const db = new JSONdb('database/db.json')
   const tickersFromDB = await db.get('futTickers')
   const tickers = await getTickers()
