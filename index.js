@@ -97,18 +97,18 @@ const initTickersList = async () => {
 }
 initTickersList()
 
-cron.schedule('10,40 * * * *', async () => {
+cron.schedule('4,9,14,19,24,29,34,39,44,49,54,59 * * * *', async () => {
   initTickersList()
 })
 
-cron.schedule('10 0,30 * * * *', async () => {
+cron.schedule('10 0,5,10,15,20,25,30,35,40,45,50,55 * * * *', async () => {
   const db = new JSONdb('database/db.json')
   const tickersFromDB = await db.get('futTickers')
   const tickers = await getTickers()
 
   let difference = tickers.filter((x) => !tickersFromDB.includes(x))
 
-  let text = '🆕 FUTURES JUST LISTED:\n\n'
+  let text = '👀 NEW FUTURES LISTED:\n\n'
 
   if (difference.length > 0) {
     difference.forEach((element) => {
