@@ -89,44 +89,6 @@ cron.schedule('30 59 23,7,15 * * *', async () => {
   }
 })
 
-// CHECK NEW LISTED FUTURES
-const initTickersList = async () => {
-  const tickers = await getTickers()
-  const db = new JSONdb('database/db.json')
-  db.set('futTickers', tickers)
-}
-initTickersList()
-
-cron.schedule('4,9,14,19,24,29,34,39,44,49,54,59 * * * *', async () => {
-  initTickersList()
-})
-
-cron.schedule('10 0,5,10,15,20,25,30,35,40,45,50,55 * * * *', async () => {
-  const db = new JSONdb('database/db.json')
-  const tickersFromDB = await db.get('futTickers')
-  const tickers = await getTickers()
-
-  let difference = tickers.filter((x) => !tickersFromDB.includes(x))
-
-  let text = '👀 NEW FUTURES LISTED:\n\n'
-
-  if (difference.length > 0) {
-    difference.forEach((element) => {
-      text += `<code>${element}</code>\n`
-    })
-
-    const msg = await bot.telegram.sendMessage(process.env.USER_ID, text, {
-      parse_mode: 'HTML',
-    })
-    setTimeout(() => {
-      bot.telegram.deleteMessage(process.env.USER_ID, msg.message_id).then(
-        (response) => response,
-        ({ response }) => response.ok
-      )
-    }, 1000 * 60 * 60 * 12)
-  }
-})
-
 // START
 bot.command('start', async (ctx) => {
   if (ctx.message.chat.id == process.env.USER_ID) {
